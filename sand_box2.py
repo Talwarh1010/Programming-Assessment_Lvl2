@@ -139,7 +139,7 @@ def num_check(question, error, num_type):
             print(error)
 
 
-def get_items(type):
+def get_items():
     item_number = 0
     user_budget = num_check("What is your budget: $", error="Please enter a number more than 0", num_type=float)
     item_list = []
@@ -165,12 +165,8 @@ def get_items(type):
             continue
         elif item_name == "xxx":
             break
-        if type == "normal":
-            quantity = validate_quantity_unit("What is the quantity (e.g 120kg, 10l): ", error="Please enter a valid "
+        quantity = validate_quantity_unit("What is the quantity (e.g 120kg, 10l): ", error="Please enter a valid "
                                                                                            "quantity")
-        else:
-            quantity = num_check("What many items in the package (e.g, 10): ", error="Please enter a valid "
-                                                                                           "quantity", num_type=int)
         item_cost = num_check("What is the total cost: $", error="Please enter a valid cost", num_type=float)
         converted_quantity = quantity[3]
         converted_unit = quantity[4]
@@ -211,27 +207,26 @@ def get_items(type):
         text_file.write(conclusion)
 
 
-def show_menu():
-    print("""\n Menu
-    1. View Instructions 📝
-    2. Start Price Comparison 💲
-    3. Quit 👋""")
-    while True:
-        choice = input("Enter your choice (1/2/3): ")
-        if choice == '1':
-            instructions()
-            print()
-        elif choice == '2':
-            get_items()
-            print()
-        elif choice == '3':
-            print("Thank you for using the Price Comparison Calculator. Goodbye!")
-            break
-
-        else:
-            print("Invalid choice. Please choose a valid option (1/2/3).")
-            continue
-
-
 start()
-show_menu()
+print("""\n Menu
+1. View Instructions 📝
+2. Start Price Comparison 💲
+3. Quit 👋""")
+while True:
+    choice = input("Enter your choice (1/2/3): ")
+    if choice == '1':
+        instructions()
+        print()
+    elif choice == '2':
+        get_items()
+        print()
+    elif choice == '3':
+        print("Thank you for using the Price Comparison Calculator. Goodbye!")
+        break
+
+    else:
+        print("Invalid choice. Please choose a valid option (1/2/3).")
+        continue
+
+
+

@@ -1,8 +1,10 @@
 import re
 import pandas
 import turtle
+from openpyxl.styles import Font, Color, PatternFill, Border, Side
 from tabulate import tabulate
-from turtle import Screen
+from turtle import Screen, Turtle
+from openpyxl import Workbook, load_workbook
 
 
 def start():
@@ -81,19 +83,8 @@ def validate_quantity_unit(user_input, error):
             # If a match is found, extract the quantity and unit from the input
             quantity = float(match.group(1))  # Convert the quantity to a float
             unit = match.group(3).lower()  # Get the unit and convert it to lowercase
-            conversion_dict = {
-                "l": 1 * quantity,
-                "ml": 0.001 * quantity,
-                "g": 0.001 * quantity,
-                "kg": 1 * quantity
 
-            }
-            converted_quantity = conversion_dict[unit]
-            if unit == "ml" or unit == "l":
-                converted_unit = "L"
-            else:
-                converted_unit = "KG"
-            return [quantity, unit, response, converted_quantity, converted_unit]
+            return [quantity, unit, response]
         else:
             # If no match is found, return None
             print(error)
@@ -139,8 +130,10 @@ def num_check(question, error, num_type):
             print(error)
 
 
-def get_items(type):
-    item_number = 0
+def get_items():
+    per_unit = None
+    item_cost = None
+    quantity = None
     user_budget = num_check("What is your budget: $", error="Please enter a number more than 0", num_type=float)
     item_list = []
     quantity_list = []
@@ -158,57 +151,72 @@ def get_items(type):
 
     while True:
         item_name = string_check("Item name: ", "The item name cannot be blank or a number")
-        item_number += 1
-
-        if item_name == "xxx" and item_number == 1:
-            print("Please enter at least one item")
-            continue
-        elif item_name == "xxx":
+        if item_name == "xxx":
             break
-        if type == "normal":
-            quantity = validate_quantity_unit("What is the quantity (e.g 120kg, 10l): ", error="Please enter a valid "
+        quantity = validate_quantity_unit("What is the quantity (e.g 120kg, 10l): ", error="Please enter a valid "
                                                                                            "quantity")
-        else:
-            quantity = num_check("What many items in the package (e.g, 10): ", error="Please enter a valid "
-                                                                                           "quantity", num_type=int)
         item_cost = num_check("What is the total cost: $", error="Please enter a valid cost", num_type=float)
-        converted_quantity = quantity[3]
-        converted_unit = quantity[4]
-        unit_cost = round((item_cost / converted_quantity), 2)
+        conversion_dict = {
+            "l": 1 * quantity[0],
+            "ml": 0.001 * quantity[0],
+            "g": 0.001 * quantity[0],
+            "kg": 1 * quantity[0]
 
-        per_unit = f"${unit_cost}/{converted_unit}"
+        }
+        converted_quantity = conversion_dict[quantity[1]]
+        unit_cost = round((item_cost / converted_quantity), 2)
+        if quantity[1] == "ml" or quantity[1] == "l":
+            unit = "L"
+        else:
+            unit = "KG"
+        per_unit = f"${unit_cost}/{unit}"
         item_list.append(item_name)
         quantity_list.append(quantity[2])
-        converted_quantity_list.append(f"{converted_quantity}{converted_unit}")
+        converted_quantity_list.append(f"{converted_quantity}{unit}")
         cost_list.append(item_cost)
         per_unit_list.append(per_unit)
 
     price_frame = pandas.DataFrame(item_dict)
     price_frame = price_frame.set_index('Item')
     price_frame[['Cost']] = price_frame[['Cost']].applymap(currency)
-    price_frame['Unit Price Numeric'] = price_frame['Unit Price'].str.replace(r'\$|/.*', '', regex=True).astype(float)
-    price_frame = price_frame.sort_values(by='Unit Price Numeric', ascending=True)
-    price_frame = price_frame.drop(columns=['Unit Price Numeric'])
+    price_frame = price_frame.sort_values(by='Unit Price', ascending=True)
     table = tabulate(price_frame, headers='keys', tablefmt='fancy_grid')
     print(table)
 
+    price_frame['Unit Price Numeric'] = price_frame['Unit Price'].str.replace(r'\$|/.*', '', regex=True).astype(float)
     price_frame['Cost'] = price_frame['Cost'].str.replace('$', '').astype(float)
     affordable_items = price_frame[price_frame['Cost'] <= float(user_budget)]
+    affordable_items = affordable_items.sort_values(by='Unit Price Numeric')
+    price_frame = price_frame.drop('Unit Price Numeric', axis=1)
 
     if not affordable_items.empty:
         best_option = affordable_items.iloc[0]
         best_option_name = best_option.name
-        conclusion = f"The best option within your budget (${user_budget}) is: {best_option_name}"
+        conclusion = f"The best option within your budget (${user_budget}) is: {best_option_name}, {per_unit}, {quantity[2]} costs ${item_cost}"
 
     else:
         conclusion = "There are no affordable options"
         best_option_name = "no affordable options"
     print(conclusion)
-    file_name = f"{best_option_name}.txt"
-    with open(file_name, "w+", encoding="utf-8") as text_file:
-        text_file.write(table)
-        text_file.write("'\n\n")
-        text_file.write(conclusion)
+    budget_info = f"Budget: ${user_budget}"
+    price_frame[['Cost']] = price_frame[['Cost']].applymap(currency)
+    file_name = f'{best_option_name}.xlsx'
+    price_frame.to_excel(file_name)
+    wb = load_workbook(file_name)
+    ws = wb.active
+    ws.insert_rows(1)
+    ws.insert_rows(2)
+    ws.insert_rows(3)
+    ws.merge_cells("A1:E1")
+    ws.merge_cells("A2:E2")
+    ws["A1"] = budget_info
+    ws["A2"] = conclusion
+    fill = PatternFill(fgColor="FFC7CE", fill_type="solid")
+    fill2 = PatternFill(fgColor="0000FF", fill_type="solid")
+    ws["A1"].fill = fill
+    ws["A2"].fill = fill2
+    wb.save(file_name)
+    return [table, price_frame, user_budget]
 
 
 def show_menu():
