@@ -1,13 +1,10 @@
-# Used for validating quantity
-import re
-# Used for the start screen and welcome message
+# Necessary import modules. Used for creating regex patterns, turtle graphics, and dataframes
+import re, turtle, pandas as pd
+# Creates screen for turtle
 from turtle import Screen
-import turtle
-# Used for creating a table from a dataframe
+# Used for creating a table
 from tabulate import tabulate
-# Used to create a dataframe
-import pandas as pd
-# To get the current date
+# Used for getting today's date
 from datetime import date
 
 
@@ -109,7 +106,7 @@ def get_items():
     # Ask user for budget
     user_budget = float(
         validate_input("What is your budget: $", lambda x: x.replace(".", "", 1).isnumeric() and float(x) > 0,
-                       "Please enter a valid budget"))
+                       "Please enter a valid budget. (A number more than 0)"))
 
     # Initialize lists to store item details
     item_list, quantity_list, converted_quantity_list, cost_list, per_unit_list, per_unit_num_list, unit_types = [], [], [], [], [], [], []
@@ -219,8 +216,8 @@ while True:
         month = today.strftime("%m")
         year = today.strftime("%Y")
         heading = f"----- Price Comparison Tool ({day}/{month}/{year}) -----"
-        table_txt, conclusion_txt, important_note_txt, user_budget = get_items()
-        budget = f"Budget: ${user_budget}"
+        table_txt, conclusion_txt, important_note_txt, user_budget_txt = get_items()
+        budget = f"Budget: ${user_budget_txt}"
         print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
         # Create a text file with the table and conclusion
         user_file_name = validate_input("What would you like the file name to be? ",
