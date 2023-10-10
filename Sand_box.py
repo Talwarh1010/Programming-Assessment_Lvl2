@@ -1,12 +1,12 @@
-# Used for validating quantity
-import re
-# Used for the start screen and welcome message
+# Necessary import modules. Used for creating regex patterns, turtle graphics, and dataframes
+import re, turtle, pandas as pd
+# Creates screen for turtle
 from turtle import Screen
-import turtle
-# Used for creating a table from a dataframe
+# Used for creating a table
 from tabulate import tabulate
-# Used to create a dataframe
-import pandas as pd
+# Used for getting today's date
+from datetime import date
+import matplotlib.pyplot as plt
 
 
 # Start screen with welcome message
@@ -39,8 +39,8 @@ def start():
     # Display a welcome message and instructions
     t.penup()
     t.goto(-50, -60)
-    style = ("Comic Sans MS", 25, "normal")
-    second_style = ("Comic Sans MS", 15, "normal")
+    style = ('Courier', 25, 'italic')
+    second_style = ("Courier", 15, "normal")
     t.write("Welcome to Price Comparison Calculator", font=style, align='center')
     t.goto(-50, -100)
     t.pendown()
@@ -84,7 +84,7 @@ def validate_quantity_unit(user_input):
             converted_unit = "L" if unit in ["ml", "l"] else "KG"
             return quantity, unit, f"{quantity}{unit}", converted_quantity, converted_unit
         else:
-            print("Please enter a valid quantity.")
+            print("Please enter a valid quantity. A number followed by a unit. Units allowed - (kg, g, L, ml)")
             continue
 
 
@@ -102,20 +102,34 @@ def validate_input(question, validation_function, error_message):
         print(f"{error_message}. Please try again.\n")
 
 
+def plot_unit_costs(items, unit_costs, budget_user):
+    plt.figure(figsize=(10, 6))
+    plt.barh(items, unit_costs, color='skyblue')
+    plt.xlabel('Unit Cost ($ per unit)')
+    plt.ylabel('Item name')
+    plt.title(f'Unit Cost Comparison (Budget: ${budget_user})')
+    plt.gca().invert_yaxis()  # Invert the y-axis to show the lowest unit costs at the top
+    plt.tight_layout()
+    plt.show()
+
+
 # Gets the user budget, all the item info, creates a table and a text file
 def get_items():
     # Ask user for budget
-    user_budget = float(validate_input("What is your budget: $", lambda x: x.replace(".", "", 1).isnumeric() and float(x) > 0,
-                                       "Please enter a valid budget"))
+    user_budget = float(
+        validate_input("What is your budget: $", lambda x: x.replace(".", "", 1).isnumeric() and float(x) > 0,
+                       "Please enter a valid budget. (A number more than 0)"))
 
     # Initialize lists to store item details
-    item_list, quantity_list, converted_quantity_list, cost_list, per_unit_list, per_unit_num_list = [], [], [], [], [], []
+    item_list, quantity_list, converted_quantity_list, cost_list, per_unit_list, per_unit_num_list, unit_types, \
+        graph_input = [], [], \
+        [], [], [], [], [], []
 
     while True:
         # Ask the user for the name of the item
-        item_name = validate_input("Item name: ", lambda x: x.replace(" ", "").isalnum(),
+        item_name = validate_input("Item name (enter 'xxx' to quit entering items): ",
+                                   lambda x: x.replace(" ", "").isalnum(),
                                    "The item name can only include letters and numbers")
-        print(item_name)
 
         # Check if the user entered 'xxx' as the item name without entering any other items
         if item_name == "xxx" and not item_list:
@@ -126,10 +140,13 @@ def get_items():
             break
 
         quantity, unit, quantity_str, converted_quantity, converted_unit = validate_quantity_unit(
-            "What is the quantity (e.g 120kg, 10l): ")
+            "What is the quantity and unit (e.g 120kg, 10l): ")
+        unit_types.append(unit)
 
         # Prompt the user for the total cost of the item
-        item_cost = float(validate_input("What is the total cost: $",lambda x: x.replace(".", "", 1).isnumeric() and float(x) > 0, "Please enter an number more than 0"))
+        item_cost = float(
+            validate_input("What is the total cost: $", lambda x: x.replace(".", "", 1).isnumeric() and float(x) > 0,
+                           "Please enter an number more than 0"))
 
         # Calculate the converted quantity and unit cost
         unit_cost_num = item_cost / converted_quantity
@@ -140,8 +157,8 @@ def get_items():
         # Append item details to lists(to form a dataframe)
         item_list.append(item_name)
         quantity_list.append(quantity_str)
-        converted_quantity_list.append(f"{converted_quantity:.2f}{converted_unit}")
-        cost_list.append(round(item_cost, 2))
+        converted_quantity_list.append(f"{converted_quantity:.3f}{converted_unit}")
+        cost_list.append(round(item_cost, 3))
         per_unit_list.append(per_unit_str)
         per_unit_num_list.append(unit_cost_num)
 
@@ -181,9 +198,15 @@ def get_items():
         conclusion = f"The best option within your budget (${user_budget}) is: {best_option_name}"
     else:
         conclusion = "There are no affordable options"
-        best_option_name = "no affordable options"
+    # Add disclaimer if user enter items with different unit types.
+    if "kg" in unit_types and "l" in unit_types:
+        important_note = "Disclaimer - Since you have compared items that have different unit types, the " \
+                         "result may differ from what " \
+                         "you were expecting."
+    else:
+        important_note = ""
 
-    return table, conclusion, best_option_name
+    return table, conclusion, important_note, user_budget, item_list, per_unit_num_list
 
 
 # Main Routine
@@ -201,14 +224,34 @@ while True:
         instructions()
         print()
     elif choice == '2':
-        table_txt, conclusion_txt, best_option_txt = get_items()
-        print(f"{table_txt}\n\n{conclusion_txt}\n")
+        # Get today's date
+        today = date.today()
+        day = today.strftime("%d")
+        month = today.strftime("%m")
+        year = today.strftime("%Y")
+        # Get heading for output
+        heading = f"----- Price Comparison Calculator ({day}/{month}/{year}) -----"
+        table_txt, conclusion_txt, important_note_txt, user_budget_txt, item_list_txt, per_unit_list = get_items()
+        # For displaying in the output.
+        budget = f"Budget: ${user_budget_txt}"
+        print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
+
+        valid_filename_pattern = re.compile(r'^[a-zA-Z0-9_()\-,.]+$')
+
         # Create a text file with the table and conclusion
-        file_name = f"{best_option_txt}.txt"
+        user_file_name = validate_input("What would you like the file name to be? ",
+                                        lambda x: bool(valid_filename_pattern.match(x)), "Please enter a "
+                                                                                         "valid file name")
+        # Create a list to print to out on the text file
+        to_write = [heading, budget, table_txt, conclusion_txt, important_note_txt]
+        file_name = f"{user_file_name}.txt"
         with open(file_name, "w+", encoding="utf-8") as text_file:
-            text_file.write(table_txt)
-            text_file.write("\n\n")
-            text_file.write(conclusion_txt)
+            for item in to_write:
+                text_file.write(item)
+                text_file.write("\n\n")
+
+        plot_unit_costs(item_list_txt, per_unit_list, user_budget_txt)
+
 
     elif choice == '3':
         print("Thank you for using the Price Comparison Calculator. Goodbye!")
