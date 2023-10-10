@@ -38,8 +38,8 @@ def start():
     # Display a welcome message and instructions
     t.penup()
     t.goto(-50, -60)
-    style = ("Comic Sans MS", 25, "normal")
-    second_style = ("Comic Sans MS", 15, "normal")
+    style = ('Courier', 25, 'italic')
+    second_style = ("Courier", 15, "normal")
     t.write("Welcome to Price Comparison Calculator", font=style, align='center')
     t.goto(-50, -100)
     t.pendown()
@@ -109,7 +109,8 @@ def get_items():
                        "Please enter a valid budget. (A number more than 0)"))
 
     # Initialize lists to store item details
-    item_list, quantity_list, converted_quantity_list, cost_list, per_unit_list, per_unit_num_list, unit_types = [], [], [], [], [], [], []
+    item_list, quantity_list, converted_quantity_list, cost_list, per_unit_list, per_unit_num_list, unit_types = [], [], \
+        [], [], [], [], []
 
     while True:
         # Ask the user for the name of the item
@@ -184,8 +185,7 @@ def get_items():
         conclusion = f"The best option within your budget (${user_budget}) is: {best_option_name}"
     else:
         conclusion = "There are no affordable options"
-        best_option_name = "no affordable options"
-
+    # Add disclaimer if user enter items with different unit types.
     if "kg" in unit_types and "l" in unit_types:
         important_note = "Disclaimer - Since you have compared items that have different unit types, the " \
                          "result may differ from what " \
@@ -211,25 +211,25 @@ while True:
         instructions()
         print()
     elif choice == '2':
+        # Get today's date
         today = date.today()
         day = today.strftime("%d")
         month = today.strftime("%m")
         year = today.strftime("%Y")
-        heading = f"----- Price Comparison Tool ({day}/{month}/{year}) -----"
+        # Get heading for output
+        heading = f"----- Price Comparison Calculator ({day}/{month}/{year}) -----"
         table_txt, conclusion_txt, important_note_txt, user_budget_txt = get_items()
+        # For displaying in the output.
         budget = f"Budget: ${user_budget_txt}"
         print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
+
+        valid_filename_pattern = re.compile(r'^[a-zA-Z0-9_()\-,.]+$')
+
         # Create a text file with the table and conclusion
         user_file_name = validate_input("What would you like the file name to be? ",
-                                        lambda x: x.replace(" ", "").isalnum(), "Please "
-                                                                                "enter a"
-                                                                                " file "
-                                                                                "name "
-                                                                                "with "
-                                                                                "only "
-                                                                                "letters "
-                                                                                "and "
-                                                                                "numbers")
+                                        lambda x: bool(valid_filename_pattern.match(x)), "Please enter a "
+                                                                                         "valid file name")
+        # Create a list to print to out on the text file
         to_write = [heading, budget, table_txt, conclusion_txt, important_note_txt]
         file_name = f"{user_file_name}.txt"
         with open(file_name, "w+", encoding="utf-8") as text_file:
