@@ -7,6 +7,7 @@ from tabulate import tabulate
 # Used for getting today's date
 from datetime import date
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 
 # Start screen with welcome message
@@ -102,14 +103,34 @@ def validate_input(question, validation_function, error_message):
         print(f"{error_message}. Please try again.\n")
 
 
-def plot_unit_costs(items, unit_costs, budget_user):
+def plot_unit_costs(items, unit_costs, budget_user, cost_list):
+    # Create a DataFrame to hold the items and unit costs
+    df = pd.DataFrame({'Item': items, 'Unit Cost': unit_costs, 'Cost': cost_list})
+
+    # Sort the DataFrame by 'Unit Cost' in ascending order
+    df = df.sort_values(by='Unit Cost', ascending=True)
+
+    # Extract the sorted items, unit costs, and costs
+    sorted_items = df['Item']
+    sorted_unit_costs = df['Unit Cost']
+    sorted_costs = df['Cost']
+
+    # Create a list of colors based on whether the cost is within the budget
+    colors = ['red' if cost > budget_user else 'skyblue' for cost in sorted_costs]
+
     plt.figure(figsize=(10, 6))
-    plt.barh(items, unit_costs, color='skyblue')
+    plt.barh(sorted_items, sorted_unit_costs, color=colors)
+
     plt.xlabel('Unit Cost ($ per unit)')
     plt.ylabel('Item name')
     plt.title(f'Unit Cost Comparison (Budget: ${budget_user})')
     plt.gca().invert_yaxis()  # Invert the y-axis to show the lowest unit costs at the top
     plt.tight_layout()
+
+    handles = [mpatches.Patch(color='skyblue', label='Under Budget'),
+               mpatches.Patch(color='red', label='Exceeds Budget')]
+    plt.legend(handles=handles, loc='upper right')
+
     plt.show()
 
 
@@ -206,7 +227,7 @@ def get_items():
     else:
         important_note = ""
 
-    return table, conclusion, important_note, user_budget, item_list, per_unit_num_list
+    return table, conclusion, important_note, user_budget, item_list, per_unit_num_list, cost_list
 
 
 # Main Routine
@@ -231,7 +252,7 @@ while True:
         year = today.strftime("%Y")
         # Get heading for output
         heading = f"----- Price Comparison Calculator ({day}/{month}/{year}) -----"
-        table_txt, conclusion_txt, important_note_txt, user_budget_txt, item_list_txt, per_unit_list = get_items()
+        table_txt, conclusion_txt, important_note_txt, user_budget_txt, item_list_txt, per_unit_list_txt, cost_list_text = get_items()
         # For displaying in the output.
         budget = f"Budget: ${user_budget_txt}"
         print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
@@ -250,7 +271,7 @@ while True:
                 text_file.write(item)
                 text_file.write("\n\n")
 
-        plot_unit_costs(item_list_txt, per_unit_list, user_budget_txt)
+        plot_unit_costs(item_list_txt, per_unit_list_txt, user_budget_txt, cost_list_text)
 
 
     elif choice == '3':
