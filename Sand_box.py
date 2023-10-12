@@ -123,7 +123,7 @@ def plot_unit_costs(items, unit_costs, budget_user, cost_list):
 
     plt.xlabel('Unit Cost ($ per unit)')
     plt.ylabel('Item name')
-    plt.title(f'Unit Cost Comparison (Budget: ${budget_user})')
+    plt.title(f'Unit Cost Comparison (Budget: ${budget_user:.2f})')
     plt.gca().invert_yaxis()  # Invert the y-axis to show the lowest unit costs at the top
     plt.tight_layout()
 
@@ -150,7 +150,7 @@ def get_items():
         # Ask the user for the name of the item
         item_name = validate_input("Item name (enter 'xxx' to quit entering items): ",
                                    lambda x: x.replace(" ", "").isalnum(),
-                                   "The item name can only include letters and numbers")
+                                   "The item name can only include letters, integers and spaces")
 
         # Check if the user entered 'xxx' as the item name without entering any other items
         if item_name == "xxx" and not item_list:
@@ -254,13 +254,13 @@ while True:
         heading = f"----- Price Comparison Calculator ({day}/{month}/{year}) -----"
         table_txt, conclusion_txt, important_note_txt, user_budget_txt, item_list_txt, per_unit_list_txt, cost_list_text = get_items()
         # For displaying in the output.
-        budget = f"Budget: ${user_budget_txt}"
+        budget = f"Budget: ${user_budget_txt:.2f}"
         print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
 
         valid_filename_pattern = re.compile(r'^[a-zA-Z0-9_()\-,.]+$')
 
         # Create a text file with the table and conclusion
-        user_file_name = validate_input("What would you like the file name to be? ",
+        user_file_name = validate_input("What would you like the text file name to be? ",
                                         lambda x: bool(valid_filename_pattern.match(x)), "Please enter a "
                                                                                          "valid file name")
         # Create a list to print to out on the text file
