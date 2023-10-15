@@ -273,11 +273,9 @@ while True:
     elif menu_choice == '2':
         # Get today's date
         today = date.today()
-        day = today.strftime("%d")
-        month = today.strftime("%m")
-        year = today.strftime("%Y")
+        formatted_date = today.strftime("%d/%m/%Y")
         # Get heading for output
-        heading = f"----- Price Comparison Calculator ({day}/{month}/{year}) -----"
+        heading = f"----- Price Comparison Calculator ({formatted_date}) -----"
         table_txt, conclusion_txt, important_note_txt, user_budget_txt, item_list_txt, per_unit_list_txt, cost_list_text = get_items()
         # For displaying in the output.
         budget = f"Budget: ${user_budget_txt:.2f}"
