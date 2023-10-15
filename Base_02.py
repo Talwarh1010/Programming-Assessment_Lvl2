@@ -6,6 +6,7 @@ from turtle import Screen
 from tabulate import tabulate
 # Used for getting today's date
 from datetime import date
+# For the bar graph generation
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
@@ -13,12 +14,17 @@ import matplotlib.patches as mpatches
 # Start screen with welcome message
 def start():
     # Set up the turtle graphics window
+    # Changes the colour to background to black
     turtle.bgcolor('black')
     screen = Screen()
+    # Add a title for the top left of the window
     screen.title("Price Comparison Calculator by Harveer Talwar")
+    # Adjust the window size
     screen.setup(1000, 500)
     t = turtle.Turtle()
+    # Change the colour of pointer to white
     t.color('white')
+    # Change the pointer shape to a turtle
     t.shape('turtle')
 
     # Draw a 'S' shape and horizontal lines
@@ -40,7 +46,9 @@ def start():
     # Display a welcome message and instructions
     t.penup()
     t.goto(-50, -60)
+    # Set font for the main message
     style = ('Courier', 25, 'italic')
+    # Set font for the small message
     second_style = ("Courier", 15, "normal")
     t.write("Welcome to Price Comparison Calculator", font=style, align='center')
     t.goto(-50, -100)
@@ -82,12 +90,16 @@ def validate_quantity_unit(user_input):
         match = re.match(pattern, response, re.IGNORECASE)
 
         if match:
+            # Splits the input into two variables (quantity - number and unit - letters)
             quantity, unit = float(match.group(1)), match.group(3).lower()
+            # Set dictionary for the conversion to common unit
             conversion_dict = {"l": 1, "ml": 0.001, "g": 0.001, "kg": 1}
             converted_quantity = quantity * conversion_dict.get(unit)
             # Find converted unit (The unit that the number is being converted to)
             converted_unit = "L" if unit in ["ml", "l"] else "KG"
+            # Return these for further calculations
             return quantity, unit, f"{quantity}{unit}", converted_quantity, converted_unit
+        # If quantity is invalid, print error
         else:
             print("Please enter a valid quantity. A number followed by a unit. Units allowed - (kg, g, L, ml)")
             continue
@@ -102,6 +114,7 @@ def currency(x):
 def validate_input(question, validation_function, error_message):
     while True:
         response = input(question)
+        # if it returns True, then it is valid
         if validation_function(response):
             return response
         print(f"{error_message}. Please try again.\n")
@@ -121,20 +134,22 @@ def plot_unit_costs(items, unit_costs, budget_user, cost_list):
 
     # Create a list of colors based on whether the cost is within the budget
     colors = ['red' if cost > budget_user else 'skyblue' for cost in sorted_costs]
-
     plt.figure(figsize=(10, 6))
+    # Create horizontal bar graph with the item names and the corresponding unit prices
     plt.barh(sorted_items, sorted_unit_costs, color=colors)
-
+    # Label x and y axis by unit cost and item name
     plt.xlabel('Unit Cost ($ per unit)')
     plt.ylabel('Item name')
+    # Create heading for the bar graph
     plt.title(f'Unit Cost Comparison (Budget: ${budget_user:.2f})')
     plt.gca().invert_yaxis()  # Invert the y-axis to show the lowest unit costs at the top
+    # Ensures everything is within the window
     plt.tight_layout()
-
+    # Creates legends(What the colours mean) for the bar graph
     handles = [mpatches.Patch(color='skyblue', label='Under Budget'),
                mpatches.Patch(color='red', label='Exceeds Budget')]
     plt.legend(handles=handles, loc='upper right')
-
+    # Display the bar graph
     plt.show()
 
 
@@ -163,7 +178,7 @@ def get_items():
         # Check if the user entered 'xxx' to exit the item entry loop
         elif item_name == "xxx":
             break
-
+        # Ask user for quantity and unit
         quantity, unit, quantity_str, converted_quantity, converted_unit = validate_quantity_unit(
             "What is the quantity and unit (e.g 120kg, 10l): ")
         unit_types.append(unit)
@@ -213,9 +228,9 @@ def get_items():
     # Format the 'Cost' column in as currency
     price_frame[['Cost']] = price_frame[['Cost']].applymap(currency)
 
-    # Display the price information as a table
+    # Display the data frame as a table
     table = tabulate(price_frame, headers='keys', tablefmt='fancy_grid')
-
+    # Finds best option within the budget
     if not affordable_items.empty:
         # Get the best option (lowest unit price) within the user's budget
         best_option = affordable_items.iloc[0]
@@ -245,9 +260,11 @@ while True:
 3 - Quit 👋""")
 
     choice = input("Enter your choice, (1/2/3): ")
+    # Display instructions if user enters '1'
     if choice == '1':
         instructions()
         print()
+    # Start price comparison if user enters '2'
     elif choice == '2':
         # Get today's date
         today = date.today()
@@ -260,7 +277,8 @@ while True:
         # For displaying in the output.
         budget = f"Budget: ${user_budget_txt:.2f}"
         print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
-
+        # Regex pattern for text file name (Allows letters (uppercase and lowercase). Allows numbers as well as
+        # underscores, brackets, full stops, and commas
         valid_filename_pattern = re.compile(r'^[a-zA-Z0-9_()\-,.]+$')
 
         # Create a text file with the table and conclusion
@@ -273,17 +291,20 @@ while True:
                                                                                          "commas, and full stops")
         # Create a list to print to out on the text file
         to_write = [heading, budget, table_txt, conclusion_txt, important_note_txt]
+        # Create text file with intended file name
         file_name = f"{user_file_name}.txt"
+        # Open text file and write item information to the text file
         with open(file_name, "w+", encoding="utf-8") as text_file:
             for item in to_write:
                 text_file.write(item)
                 text_file.write("\n\n")
-
+        # Plot bar graph and display it
         plot_unit_costs(item_list_txt, per_unit_list_txt, user_budget_txt, cost_list_text)
 
-
+    # Program ends with a fare well message if user enters '3'
     elif choice == '3':
         print("Thank you for using the Price Comparison Calculator. Goodbye!")
         break
+    # If user does not enter 1, 2 or 3. Give error
     else:
         print("Invalid choice. Please choose a valid option (1/2/3).")
