@@ -73,6 +73,7 @@ else:
     important_note = ""
 
 to_write = [heading, budget, table, conclusion, important_note]
+print(f"\n{heading}\n\n{budget}\n\n{table}\n\n{conclusion}\n\n{important_note}")
 file_name = f"{user_file_name}.txt"
 with open(file_name, "w+", encoding="utf-8") as text_file:
     for item in to_write:
