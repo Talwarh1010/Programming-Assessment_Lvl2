@@ -16,48 +16,48 @@ def start():
     # Set up the turtle graphics window
     # Changes the colour to background to black
     turtle.bgcolor('black')
-    screen = Screen()
+    welcome_screen = Screen()
     # Add a title for the top left of the window
-    screen.title("Price Comparison Calculator by Harveer Talwar")
+    welcome_screen.title("Price Comparison Calculator by Harveer Talwar")
     # Adjust the window size
-    screen.setup(1000, 500)
-    t = turtle.Turtle()
+    welcome_screen.setup(1000, 500)
+    turtle_pointer = turtle.Turtle()
     # Change the colour of pointer to white
-    t.color('white')
+    turtle_pointer.color('white')
     # Change the pointer shape to a turtle
-    t.shape('turtle')
+    turtle_pointer.shape('turtle')
 
     # Move the turtle to the starting point
-    t.penup()
-    t.goto(-100, 0)
-    t.pendown()
+    turtle_pointer.penup()
+    turtle_pointer.goto(-100, 0)
+    turtle_pointer.pendown()
 
     # Draw S shape
-    t.forward(45)
-    t.circle(50, 180)
-    t.circle(-50, 180)
-    t.forward(45)
+    turtle_pointer.forward(45)
+    turtle_pointer.circle(50, 180)
+    turtle_pointer.circle(-50, 180)
+    turtle_pointer.forward(45)
 
     # Draw horizontal lines across the "S" shape
     for x in [-70, -50]:
-        t.penup()
-        t.goto(x, -10)
-        t.setheading(90)
-        t.pendown()
-        t.forward(225)
+        turtle_pointer.penup()
+        turtle_pointer.goto(x, -10)
+        turtle_pointer.setheading(90)
+        turtle_pointer.pendown()
+        turtle_pointer.forward(225)
 
     # Display a welcome message and instructions
-    t.penup()
-    t.goto(-50, -60)
+    turtle_pointer.penup()
+    turtle_pointer.goto(-50, -60)
     # Set font for the main message
     style = ('Courier', 25, 'italic')
     # Set font for the small message
     second_style = ("Courier", 15, "normal")
-    t.write("Welcome to Price Comparison Calculator", font=style, align='center')
-    t.goto(-50, -100)
-    t.pendown()
-    t.hideturtle()
-    t.write("Close this window to begin using the calculator", font=second_style, align='center')
+    turtle_pointer.write("Welcome to Price Comparison Calculator", font=style, align='center')
+    turtle_pointer.goto(-50, -100)
+    turtle_pointer.pendown()
+    turtle_pointer.hideturtle()
+    turtle_pointer.write("Close this window to begin using the calculator", font=second_style, align='center')
     turtle.done()
 
 
@@ -78,9 +78,9 @@ def instructions():
 
 
 # Validate quantity and unit input
-def validate_quantity_unit(user_input):
+def validate_quantity_unit(question):
     while True:
-        response = input(user_input).lower()
+        response = input(question).lower()
         # A pattern to match the quantity (e.g 120kg, 10l)
         # - ^: Match to the start of the input
         # - (0*[1-9]\d*(\.\d+)?|0*\.\d*[1-9]\d*):
@@ -164,7 +164,8 @@ def get_items():
                        "Please enter a valid budget. (A number more than 0)"))
 
     # Initialize lists to store item details
-    item_list, quantity_list, converted_quantity_list, cost_list, per_unit_list, per_unit_num_list, unit_types, \
+    item_names_list, quantity_strings_list, converted_quantity_strings_list, item_costs_list, unit_price_strings_list,\
+        unit_prices_num_list, unit_types, \
         graph_input = [], [], \
         [], [], [], [], [], []
 
@@ -175,7 +176,7 @@ def get_items():
                                    "The item name can only include letters, integers and spaces")
 
         # Check if the user entered 'xxx' as the item name without entering any other items
-        if item_name == "xxx" and not item_list:
+        if item_name == "xxx" and not item_names_list:
             print("Please enter at least one item.")
             continue
         # Check if the user entered 'xxx' to exit the item entry loop
@@ -198,21 +199,21 @@ def get_items():
         per_unit_str = f"${unit_cost_num:.2f}/{converted_unit}"
 
         # Append item details to lists(to form a dataframe)
-        item_list.append(item_name)
-        quantity_list.append(quantity_str)
-        converted_quantity_list.append(f"{converted_quantity:.3f}{converted_unit}")
-        cost_list.append(round(item_cost, 3))
-        per_unit_list.append(per_unit_str)
-        per_unit_num_list.append(unit_cost_num)
+        item_names_list.append(item_name)
+        quantity_strings_list.append(quantity_str)
+        converted_quantity_strings_list.append(f"{converted_quantity:.3f}{converted_unit}")
+        item_costs_list.append(round(item_cost, 3))
+        unit_price_strings_list.append(per_unit_str)
+        unit_prices_num_list.append(unit_cost_num)
 
     # Create a dictionary to store item details
     item_dict = {
-        "Item": item_list,
-        "Amount": quantity_list,
-        "Converted amount": converted_quantity_list,
-        "Cost": cost_list,
-        "Unit Price": per_unit_list,
-        "num_unit_price": per_unit_num_list
+        "Item": item_names_list,
+        "Amount": quantity_strings_list,
+        "Converted amount": converted_quantity_strings_list,
+        "Cost": item_costs_list,
+        "Unit Price": unit_price_strings_list,
+        "num_unit_price": unit_prices_num_list
     }
 
     # Create a DataFrame to display and manipulate the data
@@ -246,10 +247,11 @@ def get_items():
         important_note = "Disclaimer - Since you have compared items that have different unit types, the " \
                          "result may differ from what " \
                          "you were expecting."
+    # No disclaimer if all the item units are the same
     else:
         important_note = ""
 
-    return table, conclusion, important_note, user_budget, item_list, per_unit_num_list, cost_list
+    return table, conclusion, important_note, user_budget, item_names_list, unit_prices_num_list, item_costs_list
 
 
 # Main Routine
@@ -262,13 +264,13 @@ while True:
 2 - Start Price Comparison 💲
 3 - Quit 👋""")
 
-    choice = input("Enter your choice, (1/2/3): ")
+    menu_choice = input("Enter your choice, (1/2/3): ")
     # Display instructions if user enters '1'
-    if choice == '1':
+    if menu_choice == '1':
         instructions()
         print()
     # Start price comparison if user enters '2'
-    elif choice == '2':
+    elif menu_choice == '2':
         # Get today's date
         today = date.today()
         day = today.strftime("%d")
@@ -305,7 +307,7 @@ while True:
         plot_unit_costs(item_list_txt, per_unit_list_txt, user_budget_txt, cost_list_text)
 
     # Program ends with a fare well message if user enters '3'
-    elif choice == '3':
+    elif menu_choice == '3':
         print("Thank you for using the Price Comparison Calculator. Goodbye!")
         break
     # If user does not enter 1, 2 or 3. Give error
