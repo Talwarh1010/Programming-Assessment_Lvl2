@@ -1,3 +1,4 @@
+# Required modules for regex patterns, dataframes, turtle graphics, and excel files
 import re
 import pandas
 import turtle
@@ -7,7 +8,9 @@ from turtle import Screen, Turtle
 from openpyxl import Workbook, load_workbook
 
 
+# turtle graphics screen
 def start():
+    # Set up the turtle graphics window
     turtle.bgcolor('black')
     height = 500
     width = 1000
@@ -23,7 +26,7 @@ def start():
     t.goto(-100, 0)
     t.pendown()
 
-    # Draw the S
+    # Draw the 'S' shape and horizontal lines
     t.forward(45)
     t.circle(50, 180)
     t.circle(-50, 180)
@@ -44,10 +47,10 @@ def start():
     t.forward(225)
     t.penup()
 
+    # Display welcome message and instructions
     t.goto(-50, -60)
     style = "Comic Sans MS", 25, "normal"
     second_style = "Comic Sans MS", 15, "normal"
-    # Hide the turtle
     t.write("Welcome to Price Comparison Calculator", font=style, align='center')
     t.goto(-50, -100)
     t.pendown()
@@ -56,17 +59,20 @@ def start():
     turtle.done()
 
 
+# Define the instructions function to display program instructions
 def instructions():
     print("""***** Instructions *****
     Enter the name of an item, quantity (e.g., 120kg, 10l), and its total cost
     To finish entering items, type 'xxx' when prompted for the item name
     After entering all items, you will see a table with price information
     The program will identify the best option within your budget
-    All the price comparison information will be added to a auto-generated Excel file
-    You can view the Excel file at any time and share it to people of your choice
-    Enjoy using the calculator!""")
+    All the price comparison information will be added to an auto-generated Excel file
+    You can view the Excel file at any time and share it with people of your choice
+    Enjoy using the calculator!
+    """)
 
 
+# validating quantity and unit input
 def validate_quantity_unit(user_input, error):
     while True:
         response = input(user_input).lower()
@@ -91,10 +97,12 @@ def validate_quantity_unit(user_input, error):
             continue
 
 
+# ormatting a number as currency
 def currency(x):
     return f"${x:.2f}"
 
 
+# yes/no questions
 def yes_no(question):
     to_check = ["yes", "no"]
     while True:
@@ -107,6 +115,7 @@ def yes_no(question):
         print("Please enter either yes or no... ..\n")
 
 
+# checking non-numeric strings
 def string_check(question, error):
     while True:
         response = input(question)
@@ -117,19 +126,20 @@ def string_check(question, error):
         return response
 
 
+# checking and returning numeric values
 def num_check(question, error, num_type):
     while True:
         try:
             response = num_type(input(question))
             if response <= 0:
                 print(error)
-
                 continue
             return float(response)
         except ValueError:
             print(error)
 
 
+# gather item details and perform price comparison
 def get_items():
     per_unit = None
     item_cost = None
@@ -146,22 +156,20 @@ def get_items():
         "Converted amount": converted_quantity_list,
         "Cost": cost_list,
         "Unit Price": per_unit_list
-
     }
 
     while True:
         item_name = string_check("Item name: ", "The item name cannot be blank or a number")
         if item_name == "xxx":
             break
-        quantity = validate_quantity_unit("What is the quantity (e.g 120kg, 10l): ", error="Please enter a valid "
-                                                                                           "quantity")
+        quantity = validate_quantity_unit("What is the quantity (e.g 120kg, 10l): ",
+                                          error="Please enter a valid quantity")
         item_cost = num_check("What is the total cost: $", error="Please enter a valid cost", num_type=float)
         conversion_dict = {
             "l": 1 * quantity[0],
             "ml": 0.001 * quantity[0],
             "g": 0.001 * quantity[0],
             "kg": 1 * quantity[0]
-
         }
         converted_quantity = conversion_dict[quantity[1]]
         unit_cost = round((item_cost / converted_quantity), 2)
@@ -193,7 +201,6 @@ def get_items():
         best_option = affordable_items.iloc[0]
         best_option_name = best_option.name
         conclusion = f"The best option within your budget (${user_budget}) is: {best_option_name}, {per_unit}, {quantity[2]} costs ${item_cost}"
-
     else:
         conclusion = "There are no affordable options"
         best_option_name = "no affordable options"
@@ -219,6 +226,7 @@ def get_items():
     return [table, price_frame, user_budget]
 
 
+# for displaying the main menu
 def show_menu():
     print("""\n Menu
     1. View Instructions 📝
@@ -235,11 +243,13 @@ def show_menu():
         elif choice == '3':
             print("Thank you for using the Price Comparison Calculator. Goodbye!")
             break
-
         else:
             print("Invalid choice. Please choose a valid option (1/2/3).")
             continue
 
 
+# Call the start function to initialize the turtle graphics screen
 start()
+
+# Call the show_menu function to display the main menu
 show_menu()

@@ -27,15 +27,18 @@ def start():
     # Change the pointer shape to a turtle
     t.shape('turtle')
 
-    # Draw a 'S' shape and horizontal lines
+    # Move the turtle to the starting point
     t.penup()
     t.goto(-100, 0)
     t.pendown()
+
+    # Draw S shape
     t.forward(45)
     t.circle(50, 180)
     t.circle(-50, 180)
     t.forward(45)
 
+    # Draw horizontal lines across the "S" shape
     for x in [-70, -50]:
         t.penup()
         t.goto(x, -10)
