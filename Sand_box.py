@@ -59,6 +59,10 @@ def instructions():
     The program will identify the best option within your budget
     All the price comparison information will be added to an auto-generated text file
     You can view the text file at any time and share it with people of your choice
+    You can also choose the text file name
+    You will also have access to a bar graph that compares all the item unit prices
+    The bar graph can also be saved on your device
+    You can use this calculator however many times you want by entering "2" in the menu again.
     Enjoy using the calculator!""")
 
 
@@ -94,7 +98,7 @@ def currency(x):
     return f"${x:.2f}"
 
 
-# Validate item name input
+# Validate item name, budget, cost, and text file name
 def validate_input(question, validation_function, error_message):
     while True:
         response = input(question)
@@ -216,7 +220,7 @@ def get_items():
         # Get the best option (lowest unit price) within the user's budget
         best_option = affordable_items.iloc[0]
         best_option_name = best_option.name
-        conclusion = f"The best option within your budget (${user_budget}) is: {best_option_name}"
+        conclusion = f"The best option within your budget (${user_budget:.2f}) is: {best_option_name}"
     else:
         conclusion = "There are no affordable options"
     # Add disclaimer if user enter items with different unit types.
@@ -262,7 +266,11 @@ while True:
         # Create a text file with the table and conclusion
         user_file_name = validate_input("What would you like the text file name to be? ",
                                         lambda x: bool(valid_filename_pattern.match(x)), "Please enter a "
-                                                                                         "valid file name")
+                                                                                         "valid file name. Only "
+                                                                                         "letters, and numbers are "
+                                                                                         "allowed as well as "
+                                                                                         "underscores, brackets, "
+                                                                                         "commas, and full stops")
         # Create a list to print to out on the text file
         to_write = [heading, budget, table_txt, conclusion_txt, important_note_txt]
         file_name = f"{user_file_name}.txt"
