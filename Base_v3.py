@@ -237,9 +237,8 @@ def get_items():
     if not affordable_items.empty:
         # Get the best option (lowest unit price) within the user's budget. It finds the index of 0 in the dataframe
         # and finds the name in the item name column
-        best_option = affordable_items.iloc[0]
-        best_option_name = best_option.name
-        conclusion = f"The best option within your budget (${user_budget:.2f}) is: {best_option_name}"
+        best_option = affordable_items.iloc[0].name
+        conclusion = f"The best option within your budget (${user_budget:.2f}) is: {best_option}"
         # If none of the items are within the user budget, then there are not affordable options.
     else:
         conclusion = "There are no affordable options"
