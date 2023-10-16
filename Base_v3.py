@@ -184,7 +184,7 @@ def get_items():
         # Ask user for quantity and unit
         quantity, unit, quantity_str, converted_quantity, converted_unit = validate_quantity_unit(
             "What is the quantity and unit (e.g 120kg, 10l): ")
-        unit_types.append(unit)
+        unit_types.append(converted_unit)
 
         # Prompt the user for the total cost of the item
         item_cost = float(
@@ -243,7 +243,7 @@ def get_items():
     else:
         conclusion = "There are no affordable options"
     # Add disclaimer if user enter items with different unit types.
-    if "kg" in unit_types and "l" in unit_types:
+    if "KG" in unit_types and "L" in unit_types:
         important_note = "Disclaimer - Since you have compared items that have different unit types, the " \
                          "result may differ from what " \
                          "you were expecting."
