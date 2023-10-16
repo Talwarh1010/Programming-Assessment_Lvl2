@@ -166,9 +166,7 @@ def get_items():
 
     # Initialize lists to store item details
     item_names_list, quantity_strings_list, converted_quantity_strings_list, item_costs_list, unit_price_strings_list, \
-        unit_prices_num_list, unit_types, \
-        graph_input = [], [], \
-        [], [], [], [], [], []
+        unit_prices_num_list, unit_types = [], [], [], [], [], [], []
 
     while True:
         # Ask the user for the name of the item
