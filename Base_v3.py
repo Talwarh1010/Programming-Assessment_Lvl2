@@ -1,6 +1,6 @@
 # Necessary import modules. Used for creating regex patterns, turtle graphics, and dataframes
 import re, turtle, pandas as pd
-# Creates screen for turtle graphics
+# Import the 'Screen' class from the 'turtle' library to create the graphical interface.
 from turtle import Screen
 # Used for creating a table for the item details
 from tabulate import tabulate
@@ -14,7 +14,7 @@ import matplotlib.patches as mpatches
 # Start screen with welcome message
 def start():
     # Set up the turtle graphics window
-    # Changes the colour to background to black
+    # Set the background color of the Turtle graphics window to black.
     turtle.bgcolor('black')
     welcome_screen = Screen()
     # Add a title for the top left of the window
@@ -130,7 +130,7 @@ def plot_unit_costs(items, unit_costs, budget_user, cost_list):
     # Sort the DataFrame by 'Unit Cost' in ascending order
     df = df.sort_values(by='Unit Cost', ascending=True)
 
-    # Extract the sorted items, unit costs, and costs
+    # Extract and store the sorted items, unit costs, and costs from the DataFrame for further processing and display.
     sorted_items = df['Item']
     sorted_unit_costs = df['Unit Cost']
     sorted_costs = df['Cost']
@@ -192,7 +192,7 @@ def get_items():
             validate_input("What is the total cost: $", lambda x: x.replace(".", "", 1).isnumeric() and float(x) > 0,
                            "Please enter an number more than 0"))
 
-        # Calculate the converted quantity and unit cost
+        # Calculate the unit cost by dividing the item cost by the converted quantity.
         unit_cost_num = item_cost / converted_quantity
 
         # For display in the dataframe
@@ -232,7 +232,7 @@ def get_items():
     # Format the 'Cost' column in as currency
     price_frame[['Cost']] = price_frame[['Cost']].applymap(currency)
 
-    # Display the data frame as a table
+    # Generate a formatted table representation of the DataFrame for displaying the item details.
     table = tabulate(price_frame, headers='keys', tablefmt='fancy_grid')
     # Finds best option within the budget
     if not affordable_items.empty:
@@ -274,7 +274,7 @@ while True:
         # Get today's date
         today = date.today()
         formatted_date = today.strftime("%d/%m/%Y")
-        # Get heading for output
+        # Generate the heading for the output, including the current date, to provide a title for the result.
         heading = f"----- Price Comparison Calculator ({formatted_date}) -----"
         table_txt, conclusion_txt, important_note_txt, user_budget_txt, item_list_txt, per_unit_list_txt, cost_list_text = get_items()
         # For displaying in the output.
@@ -296,12 +296,12 @@ while True:
         to_write = [heading, budget, table_txt, conclusion_txt, important_note_txt]
         # Create text file with intended file name
         file_name = f"{user_file_name}.txt"
-        # Open text file and write item information to the text file
+        # Open the text file with the provided file name in write mode, and write item information to the text file.
         with open(file_name, "w+", encoding="utf-8") as text_file:
             for item in to_write:
                 text_file.write(item)
                 text_file.write("\n\n")
-        # Plot bar graph and display it
+        # Generate and display a bar graph of unit costs for the items, highlighting those within the user's budget.
         plot_unit_costs(item_list_txt, per_unit_list_txt, user_budget_txt, cost_list_text)
 
     # Program ends with a fare well message if user enters '3'
