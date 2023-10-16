@@ -49,9 +49,9 @@ def start():
     # Display a welcome message and instructions
     turtle_pointer.penup()
     turtle_pointer.goto(-50, -60)
-    # Set font for the main message
+    # Set font for the main message to Courier, and change size to 25. Change style to italic
     style = ('Courier', 25, 'italic')
-    # Set font for the small message
+    # Set font for the small message to Courier, and change size to 15
     second_style = ("Courier", 15, "normal")
     turtle_pointer.write("Welcome to Price Comparison Calculator", font=style, align='center')
     turtle_pointer.goto(-50, -100)
