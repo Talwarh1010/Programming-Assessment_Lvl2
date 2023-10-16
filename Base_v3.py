@@ -1,8 +1,8 @@
 # Necessary import modules. Used for creating regex patterns, turtle graphics, and dataframes
 import re, turtle, pandas as pd
-# Creates screen for turtle
+# Creates screen for turtle graphics
 from turtle import Screen
-# Used for creating a table
+# Used for creating a table for the item details
 from tabulate import tabulate
 # Used for getting today's date
 from datetime import date
@@ -280,9 +280,9 @@ while True:
         # For displaying in the output.
         budget = f"Budget: ${user_budget_txt:.2f}"
         print(f"\n{heading}\n\n{budget}\n\n{table_txt}\n\n{conclusion_txt}\n\n{important_note_txt}")
-        # Regex pattern for text file name (Allows letters (uppercase and lowercase). Allows numbers as well as
-        # underscores, brackets, full stops, and commas
-        valid_filename_pattern = re.compile(r'^[a-zA-Z0-9_()\-,.]+$')
+        # Regex pattern for text file name (Allows letters, uppercase and lowercase). Allows numbers as well as
+        # underscores, brackets, dashes, full stops, and commas
+        valid_filename_pattern = re.compile(r"^[a-zA-Z0-9_()\-,.]+$")
 
         # Create a text file with the table and conclusion
         user_file_name = validate_input("What would you like the text file name to be? ",
@@ -290,7 +290,7 @@ while True:
                                                                                          "valid file name. Only "
                                                                                          "letters, and numbers are "
                                                                                          "allowed as well as "
-                                                                                         "underscores, brackets, "
+                                                                                         "underscores, brackets, dashes"
                                                                                          "commas, and full stops")
         # Create a list to print to out on the text file
         to_write = [heading, budget, table_txt, conclusion_txt, important_note_txt]
