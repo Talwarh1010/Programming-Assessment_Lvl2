@@ -117,12 +117,13 @@ def currency(x):
 def validate_input(question, validation_function, error_message):
     while True:
         response = input(question)
-        # if it returns True, then it is valid
+        # if it returns True, then input is valid
         if validation_function(response):
             return response
         print(f"{error_message}. Please try again.\n")
 
 
+# Generates bar graph that compares the item unit costs
 def plot_unit_costs(items, unit_costs, budget_user, cost_list):
     # Create a DataFrame to hold the items and unit costs
     df = pd.DataFrame({'Item': items, 'Unit Cost': unit_costs, 'Cost': cost_list})
@@ -164,7 +165,7 @@ def get_items():
                        "Please enter a valid budget. (A number more than 0)"))
 
     # Initialize lists to store item details
-    item_names_list, quantity_strings_list, converted_quantity_strings_list, item_costs_list, unit_price_strings_list,\
+    item_names_list, quantity_strings_list, converted_quantity_strings_list, item_costs_list, unit_price_strings_list, \
         unit_prices_num_list, unit_types, \
         graph_input = [], [], \
         [], [], [], [], [], []
@@ -236,10 +237,12 @@ def get_items():
     table = tabulate(price_frame, headers='keys', tablefmt='fancy_grid')
     # Finds best option within the budget
     if not affordable_items.empty:
-        # Get the best option (lowest unit price) within the user's budget
+        # Get the best option (lowest unit price) within the user's budget. It finds the index of 0 in the dataframe
+        # and finds the name in the item name column
         best_option = affordable_items.iloc[0]
         best_option_name = best_option.name
         conclusion = f"The best option within your budget (${user_budget:.2f}) is: {best_option_name}"
+        # If none of the items are within the user budget, then there are not affordable options.
     else:
         conclusion = "There are no affordable options"
     # Add disclaimer if user enter items with different unit types.
@@ -285,6 +288,8 @@ while True:
         valid_filename_pattern = re.compile(r"^[a-zA-Z0-9_()\-,.]+$")
 
         # Create a text file with the table and conclusion
+        # Asks user for text file name. It checks if it matches the regex pattern and returns True as a boolean
+        # value for the validate input function
         user_file_name = validate_input("What would you like the text file name to be? ",
                                         lambda x: bool(valid_filename_pattern.match(x)), "Please enter a "
                                                                                          "valid file name. Only "
