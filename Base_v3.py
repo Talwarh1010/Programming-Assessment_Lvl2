@@ -149,7 +149,7 @@ def plot_unit_costs(items, unit_costs, budget_user, cost_list):
     # Ensures everything is within the window
     plt.tight_layout()
     # Creates legends(What the colours mean) for the bar graph
-    handles = [mpatches.Patch(color='skyblue', label='Under Budget'),
+    handles = [mpatches.Patch(color='skyblue', label='Within Budget'),
                mpatches.Patch(color='red', label='Exceeds Budget')]
     plt.legend(handles=handles, loc='upper right')
     # Display the bar graph
